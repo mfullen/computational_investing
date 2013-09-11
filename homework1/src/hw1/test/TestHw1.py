@@ -6,43 +6,38 @@ Description: Homework Assignment 1 from Computational Investing Part 1 on Course
 @author: mfullen
 '''
 import unittest
+import datetime as dt
 from hw1.Hw1App import Hw1App
 
 class TestHw1(unittest.TestCase):
 
-    def testExampleOutput0(self):
-        app = Hw1App()
-        vol, daily_ret, sharpe, cum_ret  = app.simulate(startDate="January 1, 2011", 
-                     endDate="December 31, 2011", 
-                     symbols=['AAPL', 'GLD', 'GOOG', 'XOM'], 
-                     allocations=[0.4, 0.4, 0.0, 0.2])
-        self.assertEqual(vol, 1, "Volatility (stdev of daily returns) is incorrect")
-        self.assertEqual(daily_ret, 1, "Average Daily Return is incorrect")
-        self.assertEqual(sharpe, 1, "Sharpe Ratio is incorrect")
-        self.assertEqual(cum_ret, 1, "Cumulative Return is incorrect")
 
     def testExampleOutput1(self):
         app = Hw1App()
-        vol, daily_ret, sharpe, cum_ret  = app.simulate(startDate="January 1, 2011", 
-                     endDate="December 31, 2011", 
-                     symbols=['AAPL', 'GLD', 'GOOG', 'XOM'], 
+        vol, daily_ret, sharpe, cum_ret = app.simulate(startDate= dt.datetime(2011,1,1),
+                     endDate= dt.datetime(2011,12,31),
+                     symbols=['AAPL', 'GLD', 'GOOG', 'XOM'],
                      allocations=[0.4, 0.4, 0.0, 0.2])
-        self.assertEqual(vol, 0.0101467067654, "Volatility (stdev of daily returns) is incorrect")
-        self.assertEqual(daily_ret, 0.000657261102001, "Average Daily Return is incorrect")
-        self.assertEqual(sharpe, 1.02828403099, "Sharpe Ratio is incorrect")
-        self.assertEqual(cum_ret, 1.16487261965, "Cumulative Return is incorrect")
+        self.assertAlmostEqual(1.02828403099, sharpe, 7,"Result Sharpe Ratio: " + str(sharpe) +" is incorrect", delta=None)
+        self.assertAlmostEqual(vol, 0.0101467067654, 7, "Volatility (stdev of daily returns) " + str(vol) +" is incorrect", delta=None)
+        self.assertAlmostEqual(daily_ret, 0.000657261102001, 7, "Average Daily Return " + str(daily_ret) +" is incorrect", delta=None)
+        self.assertAlmostEqual(cum_ret, 1.16487261965,7, "Result: " + str(cum_ret) +" doesn't match expected Cumulative Return", delta=None)
+       
         
     def testExampleOutput2(self):
         app = Hw1App()
-        vol, daily_ret, sharpe, cum_ret  = app.simulate(startDate="January 1, 2010", 
-                     endDate="December 31, 2010", 
-                     symbols=['AXP', 'HPQ', 'IBM', 'HNZ'], 
+        vol, daily_ret, sharpe, cum_ret = app.simulate(startDate= dt.datetime(2010,1,1),
+                     endDate= dt.datetime(2010,12,31),
+                     symbols=['AXP', 'HPQ', 'IBM', 'HNZ'],
                      allocations=[0.0, 0.0, 0.0, 1.0])
-        self.assertEqual(vol, 0.00924299255937, "Volatility (stdev of daily returns) is incorrect")
-        self.assertEqual(daily_ret, 0.000756285585593, "Average Daily Return is incorrect")
-        self.assertEqual(sharpe, 1.29889334008, "Sharpe Ratio is incorrect")
-        self.assertEqual(cum_ret, 1.1960583568, "Cumulative Return is incorrect")
+        self.assertAlmostEqual(1.29889334008, sharpe, 7,"Result Sharpe Ratio: " + str(sharpe) +" is incorrect", delta=None)
+        self.assertAlmostEqual(vol, 0.00924299255937, 7, "Volatility (stdev of daily returns) " + str(vol) +" is incorrect", delta=None)
+        self.assertAlmostEqual(daily_ret, 0.000756285585593, 7, "Average Daily Return " + str(daily_ret) +" is incorrect", delta=None)
+        self.assertAlmostEqual(cum_ret, 1.1960583568, 7, "Cumulative Return " + str(cum_ret) +" is incorrect", delta=None)
+        
+        
+       
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'TestHw1.testName']
+    # import sys;sys.argv = ['', 'TestHw1.testName']
     unittest.main()
