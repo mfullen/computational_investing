@@ -13,6 +13,7 @@ class TestHw1(unittest.TestCase):
 
 
     def testExampleOutput1(self):
+        print("===============testExampleOutput1===============")
         app = Hw1App()
         vol, daily_ret, sharpe, cum_ret = app.simulate(startDate= dt.datetime(2011,1,1),
                      endDate= dt.datetime(2011,12,31),
@@ -25,6 +26,7 @@ class TestHw1(unittest.TestCase):
        
         
     def testExampleOutput2(self):
+        print("===============testExampleOutput2===============")
         app = Hw1App()
         vol, daily_ret, sharpe, cum_ret = app.simulate(startDate= dt.datetime(2010,1,1),
                      endDate= dt.datetime(2010,12,31),
@@ -34,6 +36,20 @@ class TestHw1(unittest.TestCase):
         self.assertAlmostEqual(vol, 0.00924299255937, 7, "Volatility (stdev of daily returns) " + str(vol) +" is incorrect", delta=None)
         self.assertAlmostEqual(daily_ret, 0.000756285585593, 7, "Average Daily Return " + str(daily_ret) +" is incorrect", delta=None)
         self.assertAlmostEqual(cum_ret, 1.1960583568, 7, "Cumulative Return " + str(cum_ret) +" is incorrect", delta=None)
+    
+    def testOptimizeQuizQuestion1(self):
+        print("===============testOptimizeQuizQuestion1===============")
+        app = Hw1App()
+        sharpe = app.optimize(startDate= dt.datetime(2011,1,1), endDate= dt.datetime(2011,12,31),
+                     symbols=['AAPL', 'GOOG', 'IBM', 'MSFT'])
+        print(sharpe)
+        
+    def testOptimizeQuizQuestion2(self):
+        print("===============testOptimizeQuizQuestion2===============")
+        app = Hw1App()
+        sharpe = app.optimize(startDate= dt.datetime(2010,1,1), endDate= dt.datetime(2010,12,31),
+                     symbols= ['BRCM', 'TXN', 'IBM', 'HNZ'] )
+        print(sharpe)
         
         
        

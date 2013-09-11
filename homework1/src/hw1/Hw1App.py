@@ -9,19 +9,55 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from compiler import symbols
+import itertools 
 
 class Hw1App(object):
+    def __init__(self):
+        self.timeofday = dt.timedelta(hours=16)
+        self.c_dataobj = da.DataAccess('Yahoo', cachestalltime=0)
+        self.ldf_data = None
+        self.d_data = None
+        
+    def find_sum_in_list(self,numbers, target, length):
+        results = []
+        for x in range(len(numbers)):
+            results.extend(
+                [   
+                    #combo for combo in itertools.permutations(numbers , x)  
+                    combo for combo in itertools.product(numbers, repeat=4)  
+                        if (sum(combo) == target and len(combo) == length)
+                ]   
+            )   
+    
+        return results
+   
+              
+    def optimize(self, startDate, endDate, symbols):
+        
+        allocations = self.find_sum_in_list(range(0,10), 10, len(symbols))
+        allocations = np.array(allocations)
+        allocations = allocations / 10.0
+        sharpe_ratios = []
+        
+        for i in range(0, len(allocations)):
+            vol, daily_ret, sharpe, cum_ret = self.simulate(startDate,endDate, symbols, allocations[i])
+            sharpe_ratios.append(sharpe)
+            print(str(allocations[i]) + "sharpe: " + str(sharpe))
+        
+        #print(max(sharpe_ratios))
+        return max(sharpe_ratios)
     
     
     def simulate(self, startDate, endDate, symbols, allocations):
         
-        timeofday = dt.timedelta(hours=16)
-        ldt_timestamps = du.getNYSEdays(startDate, endDate, timeofday)
+        ldt_timestamps = du.getNYSEdays(startDate, endDate, self.timeofday)
         
-        c_dataobj = da.DataAccess('Yahoo', cachestalltime=0)
         ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
-        ldf_data = c_dataobj.get_data(ldt_timestamps, symbols, ls_keys)
-        d_data = dict(zip(ls_keys, ldf_data))
+        if(self.ldf_data == None):
+            self.ldf_data = self.c_dataobj.get_data(ldt_timestamps, symbols, ls_keys)
+            
+        if(self.d_data == None):    
+            d_data = dict(zip(ls_keys, self.ldf_data))
         
         adjusted_closing_price = d_data['close'].values
         normalized_closing_price = adjusted_closing_price / adjusted_closing_price[0,:]
