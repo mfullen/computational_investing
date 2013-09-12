@@ -40,20 +40,21 @@ class TestHw1(unittest.TestCase):
     def testOptimizeQuizQuestion1(self):
         print("===============testOptimizeQuizQuestion1===============")
         app = Hw1App()
-        sharpe = app.optimize(startDate= dt.datetime(2011,1,1), endDate= dt.datetime(2011,12,31),
+        sharpe, allocation = app.optimize(startDate= dt.datetime(2011,1,1), endDate= dt.datetime(2011,12,31),
                      symbols=['AAPL', 'GOOG', 'IBM', 'MSFT'])
         print(sharpe)
-        
+        print(allocation)
+        self.assertAlmostEqual(1.19360525401, sharpe, 7,"Result Sharpe Ratio: " + str(sharpe) +" is incorrect", delta=None)
+         
     def testOptimizeQuizQuestion2(self):
         print("===============testOptimizeQuizQuestion2===============")
         app = Hw1App()
-        sharpe = app.optimize(startDate= dt.datetime(2010,1,1), endDate= dt.datetime(2010,12,31),
+        sharpe, allocation = app.optimize(startDate= dt.datetime(2010,1,1), endDate= dt.datetime(2010,12,31),
                      symbols= ['BRCM', 'TXN', 'IBM', 'HNZ'] )
         print(sharpe)
+        print(allocation)
+        self.assertAlmostEqual(1.38514235431, sharpe, 7,"Result Sharpe Ratio: " + str(sharpe) +" is incorrect", delta=None)
         
-        
-       
-
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'TestHw1.testName']
     unittest.main()

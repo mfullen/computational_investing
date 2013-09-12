@@ -17,47 +17,48 @@ class Hw1App(object):
         self.c_dataobj = da.DataAccess('Yahoo', cachestalltime=0)
         self.ldf_data = None
         self.d_data = None
+        self.ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
         
-    def find_sum_in_list(self,numbers, target, length):
+    def get_targeted_cartesian_product(self,numbers, target, length):
         results = []
-        for x in range(len(numbers)):
-            results.extend(
+        results.extend(
                 [   
-                    #combo for combo in itertools.permutations(numbers , x)  
-                    combo for combo in itertools.product(numbers, repeat=4)  
+                    combo for combo in itertools.product(numbers, repeat=length)  
                         if (sum(combo) == target and len(combo) == length)
                 ]   
             )   
     
         return results
-   
               
     def optimize(self, startDate, endDate, symbols):
         
-        allocations = self.find_sum_in_list(range(0,10), 10, len(symbols))
+        allocations = self.get_targeted_cartesian_product(range(0,10), 10, len(symbols))
         allocations = np.array(allocations)
         allocations = allocations / 10.0
         sharpe_ratios = []
         
+        max_sharpe_ratio = 0
+        associated_allocation = []
         for i in range(0, len(allocations)):
             vol, daily_ret, sharpe, cum_ret = self.simulate(startDate,endDate, symbols, allocations[i])
             sharpe_ratios.append(sharpe)
-            print(str(allocations[i]) + "sharpe: " + str(sharpe))
-        
-        #print(max(sharpe_ratios))
-        return max(sharpe_ratios)
+            if  max_sharpe_ratio < max(sharpe_ratios):
+                max_sharpe_ratio = max(sharpe_ratios) 
+                associated_allocation = allocations[i]
+
+        return max_sharpe_ratio, associated_allocation
     
     
     def simulate(self, startDate, endDate, symbols, allocations):
-        
+        #get time stamps from the days the market was open
         ldt_timestamps = du.getNYSEdays(startDate, endDate, self.timeofday)
         
-        ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+        #lazy load the market data
         if(self.ldf_data == None):
-            self.ldf_data = self.c_dataobj.get_data(ldt_timestamps, symbols, ls_keys)
-            
+            self.ldf_data = self.c_dataobj.get_data(ldt_timestamps, symbols, self.ls_keys)
+        #lazy load the compacting of the data into a map    
         if(self.d_data == None):    
-            d_data = dict(zip(ls_keys, self.ldf_data))
+            d_data = dict(zip(self.ls_keys, self.ldf_data))
         
         adjusted_closing_price = d_data['close'].values
         normalized_closing_price = adjusted_closing_price / adjusted_closing_price[0,:]
@@ -81,11 +82,7 @@ class Hw1App(object):
         for i in range(1, len(cumulative_return_matrix)): 
             daily_ret_matrix[i-1] = (cumulative_return_matrix[i] / cumulative_return_matrix[i-1]) - 1 
             
-
         #calculate cumulative daily return, [252,1]
-        
-
-
         volatility = daily_ret_matrix.std()
         daily_return = np.mean(daily_ret_matrix)
         sharpe_ratio = math.sqrt(252) * daily_return / volatility
@@ -93,8 +90,3 @@ class Hw1App(object):
         #cumulative_return = np.sum(cum_daily_return_matrix)
         
         return volatility, daily_return, sharpe_ratio, cumulative_return
-    
-    
-
-
-
