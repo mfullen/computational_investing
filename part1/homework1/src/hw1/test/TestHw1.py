@@ -6,8 +6,10 @@ Description: Homework Assignment 1 from Computational Investing Part 1 on Course
 @author: mfullen
 '''
 import unittest
+
 import datetime as dt
 from hw1.Hw1App import Hw1App
+
 
 class TestHw1(unittest.TestCase):
 

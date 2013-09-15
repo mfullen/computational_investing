@@ -1,12 +1,13 @@
+import itertools
+import math
+
 import QSTK
+import QSTK.qstkutil.DataAccess as da
 import QSTK.qstkutil.qsdateutil as du
 import QSTK.qstkutil.tsutil as tsu
-import QSTK.qstkutil.DataAccess as da
-
-import math
 import datetime as dt
 import numpy as np
-import itertools 
+
 
 class Hw1App(object):
     def __init__(self):
