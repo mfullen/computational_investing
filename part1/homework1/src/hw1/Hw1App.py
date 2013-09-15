@@ -5,10 +5,7 @@ import QSTK.qstkutil.DataAccess as da
 
 import math
 import datetime as dt
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-from compiler import symbols
 import itertools 
 
 class Hw1App(object):
