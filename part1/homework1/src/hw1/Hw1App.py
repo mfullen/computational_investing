@@ -1,7 +1,6 @@
 import itertools
 import math
 
-import QSTK
 import QSTK.qstkutil.DataAccess as da
 import QSTK.qstkutil.qsdateutil as du
 import QSTK.qstkutil.tsutil as tsu
