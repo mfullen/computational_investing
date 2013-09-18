@@ -30,6 +30,13 @@ class Hw2Test(unittest.TestCase):
        
         return df_close[my_test]
     
+    def find_events_rose_above(self,ls_symbols, d_data, eventPrice):
+        df_close = d_data['actual_close']
+        my_test = (df_close > eventPrice) & (df_close.shift(1) <= eventPrice)
+        df_close[my_test] = 1
+
+        return df_close[my_test]
+    
     def fetch_data(self, dt_start, dt_end, symbolsFile):
         ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt.timedelta(hours=16))
         dataobj = da.DataAccess('Yahoo')
@@ -76,6 +83,66 @@ class Hw2Test(unittest.TestCase):
                     s_filename='testExample2EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
                     s_market_sym='SPY')
         ''' expectedEvents = 326 '''
+        pass
+    
+    def testCustomEvent_roseAbove5_2008(self):
+        print("======================testCustomEvent_roseAbove5_2008===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 5.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002008')
+        df_events = self.find_events_rose_above(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='RoseAbove5Dollars2008EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
+        pass
+    
+    def testCustomEvent_roseAbove10_2008(self):
+        print("======================testCustomEvent_roseAbove10_2008===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 10.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002008')
+        df_events = self.find_events_rose_above(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='RoseAbove10Dollars2008EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
+        pass
+    
+    def testCustomEvent_roseAbove5_2012(self):
+        print("======================testCustomEvent_roseAbove5_2012===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 5.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002012')
+        df_events = self.find_events_rose_above(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='RoseAbove5Dollars2012EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
+        pass
+    
+    def testCustomEvent_roseAbove10_2012(self):
+        print("======================testCustomEvent_roseAbove10_2012===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 10.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002012')
+        df_events = self.find_events_rose_above(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='RoseAbove10Dollars2012EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
         pass
 
 
