@@ -85,6 +85,38 @@ class Hw2Test(unittest.TestCase):
         ''' expectedEvents = 326 '''
         pass
     
+    def testHwQuestion2(self):
+        print("======================testHwQuestion2===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 6.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002008')
+        df_events = self.find_events(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='testHwQuestion2EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
+        ''' expectedEvents = 326 '''
+        pass
+    
+    def testHwQuestion3(self):
+        print("======================testHwQuestion3===============")
+        dt_start = dt.datetime(2008,1,1)
+        dt_end = dt.datetime(2009,12,31)
+        eventPrice = 7.0
+       
+        d_data, ls_symbols = self.fetch_data(dt_start, dt_end ,'sp5002012')
+        df_events = self.find_events(ls_symbols, d_data, eventPrice)
+        
+        print "Creating Study"
+        ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
+                    s_filename='testHwQuestion3EventStudy.pdf', b_market_neutral=True, b_errorbars=True,
+                    s_market_sym='SPY')
+        ''' expectedEvents = 326 '''
+        pass
+    
     def testCustomEvent_roseAbove5_2008(self):
         print("======================testCustomEvent_roseAbove5_2008===============")
         dt_start = dt.datetime(2008,1,1)
