@@ -6,7 +6,7 @@ Created on Sep 28, 2013
 import unittest
 from MarketSim import MarketSim
 from BankAccount import BankAccount
-
+import math
 class Hw3Test(unittest.TestCase):
 
 
@@ -28,7 +28,7 @@ class Hw3Test(unittest.TestCase):
         account.deposit(1000000)
         print account.get_balance()
         sim.proccess_market_transaction(account,orders, matrix)
-        self.assertEqual(1078753, account.get_balance(), "The balance (" + str(account.get_balance()) +") doesn't match the expected value")
+        self.assertEqual(1078753, math.ceil(account.get_balance()), "The balance (" + str(account.get_balance()) +") doesn't match the expected value")
 
 
 if __name__ == "__main__":

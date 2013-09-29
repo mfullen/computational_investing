@@ -39,9 +39,11 @@ class MarketSim(object):
     def cash_to_csv(self,filename, cash_matrix):
         writer = csv.writer(open(filename, 'wb'),delimiter=',')
         row = cash_matrix['cash']
-        csv_row = [row.index[-1].strftime("%Y"),row.index[-1].strftime("%m"),row.index[-1].strftime("%d"), math.ceil(row[-1])]
-        print csv_row
-        writer.writerow(csv_row)
+        for i in range(0,len(row)):
+            row_index = row.index[i]
+            csv_row = [row_index.strftime("%Y"), row_index.strftime("%m"), row_index.strftime("%d"), math.ceil(row[i])]
+            print csv_row
+            writer.writerow(csv_row)       
             
     def get_adjustedclose_matrix(self, orders):
         timestamps = list(set([o.get_order_date() for o in orders]))
@@ -94,11 +96,13 @@ class MarketSim(object):
   
 if __name__ == "__main__":
     sim = MarketSim()
-    orders = sim.orders_from_file("orders2.csv")
+    orders = sim.orders_from_file("orders.csv")
     matrix = sim.get_adjustedclose_matrix(orders)
     account = BankAccount()
     account.deposit(1000000)
     print account.get_balance()
     cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
     sim.cash_to_csv("values.csv",cash_matrix)
+    print "Account Balance"
+    print account.get_balance()
 
