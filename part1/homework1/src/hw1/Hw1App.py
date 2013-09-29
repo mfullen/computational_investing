@@ -60,6 +60,7 @@ class Hw1App(object):
         adjusted_closing_price = d_data['close'].values
         normalized_closing_price = adjusted_closing_price / adjusted_closing_price[0,:]
         
+        print allocations
         #allocated matrix [252, 4]
         allocated_matrix = normalized_closing_price.copy()
         for col in range(0, len(allocations)):

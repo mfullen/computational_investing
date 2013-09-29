@@ -3,15 +3,18 @@ Created on Sep 28, 2013
 
 @author: mfullen
 '''
+import csv
+import math
+
+from BankAccount import BankAccount
+from Order import Order
 import QSTK.qstkutil.DataAccess as da
 import QSTK.qstkutil.qsdateutil as du
-import csv
-import pandas as pd
-from Order import Order
-from BankAccount import BankAccount
 import datetime as dt
 import numpy as np
-import math
+import pandas as pd
+
+
 class MarketSim(object):
     '''
     classdocs
