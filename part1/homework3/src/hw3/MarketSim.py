@@ -11,6 +11,7 @@ from Order import Order
 from BankAccount import BankAccount
 import datetime as dt
 import numpy as np
+import math
 class MarketSim(object):
     '''
     classdocs
@@ -34,27 +35,28 @@ class MarketSim(object):
             order = Order(dt.datetime(year,month,day),symbol, action, quant)
             orders.append(order)
         return orders
-  
+    
+    def cash_to_csv(self,filename, cash_matrix):
+        writer = csv.writer(open(filename, 'wb'),delimiter=',')
+        row = cash_matrix['cash']
+        csv_row = [row.index[-1].strftime("%Y"),row.index[-1].strftime("%m"),row.index[-1].strftime("%d"), math.ceil(row[-1])]
+        print csv_row
+        writer.writerow(csv_row)
+            
     def get_adjustedclose_matrix(self, orders):
         timestamps = list(set([o.get_order_date() for o in orders]))
         timestamps.sort()
         symbols = list(set([o.get_symbol() for o in orders]))
         timeofday = dt.timedelta(hours=16)
         c_dataobj = da.DataAccess('Yahoo')
-        ls_keys = ['actual_close']
+        ls_keys = ['close']
         
         ldt_timestamps = du.getNYSEdays(timestamps[0], timestamps[-1] + dt.timedelta(days=1), timeofday)
         ldf_data = c_dataobj.get_data(ldt_timestamps, symbols, ls_keys)
         d_data = dict(zip(ls_keys, ldf_data))
         
-        adjusted_closing_price = d_data['actual_close']
-        #adjusted_closing_price = d_data
-        #trades = pd.DataFrame()
-        #trades.insert(0, 'date', [dt.datetime(trades['year'][i],trades['month'][i],trades['day'][i],16,0,0) for i in adjusted_closing_price.index])
-       # todo learn how to filter pandas data frame to only the orders we have
-       # share_matrix.ix[time_stp][row[3]] += float(row[5]) 
-      
-        
+        adjusted_closing_price = d_data['close']
+
         return adjusted_closing_price
     
     def proccess_market_transaction(self,account,orders, matrix):
@@ -66,16 +68,23 @@ class MarketSim(object):
         df_cash = df_cash.fillna(0)
         cash = [self.process_money(account,order.get_action(),order.get_number_of_shares() * matrix.ix[order.get_order_date().strftime("%Y-%m-%d")][order.get_symbol()][0]) for order in orders]
 
+        '''
         for i in range(0,len(orders)):
+            print str(i) + ": ==========================================="
+            
             print orders[i].get_symbol()
             print matrix.ix[orders[i].get_order_date().strftime("%Y-%m-%d")]
             print matrix.ix[orders[i].get_order_date().strftime("%Y-%m-%d")][orders[i].get_symbol()][0]
-
+            print orders[i].get_number_of_shares()
+            print order.get_number_of_shares() * matrix.ix[orders[i].get_order_date().strftime("%Y-%m-%d")][orders[i].get_symbol()][0]
+            print "==========================================="
+        '''
         i= 0
         for c in cash:
             df_cash.ix[i,0] = c
             i +=1
-        print df_cash
+        #print df_cash
+        return df_cash
   
     def process_money(self, account, action, num):
         if(action == 'Buy'):
@@ -85,10 +94,11 @@ class MarketSim(object):
   
 if __name__ == "__main__":
     sim = MarketSim()
-    orders = sim.orders_from_file("orders.csv")
+    orders = sim.orders_from_file("orders2.csv")
     matrix = sim.get_adjustedclose_matrix(orders)
     account = BankAccount()
     account.deposit(1000000)
     print account.get_balance()
-    sim.proccess_market_transaction(account,orders, matrix)
+    cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
+    sim.cash_to_csv("values.csv",cash_matrix)
 
