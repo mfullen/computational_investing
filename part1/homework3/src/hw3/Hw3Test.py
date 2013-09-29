@@ -48,6 +48,19 @@ class Hw3Test(unittest.TestCase):
         self.assertAlmostEqual(vol, 0.0149090969828, 7, "Volatility (stdev of daily returns) " + str(vol) +" is incorrect", delta=None)
         self.assertAlmostEqual(daily_ret, 1.72238432443e-05, 7, "Average Daily Return " + str(daily_ret) +" is incorrect", delta=None)
         self.assertAlmostEqual(cum_ret, 0.97759401457,7, "Result: " + str(cum_ret) +" doesn't match expected Cumulative Return", delta=None)
+    
+    def testExample2Part2(self):
+        print("===============testExample2Part2===============")
+        analyzer = Analyze()
+        ports = analyzer.portfolio_from_file("values2.csv")
+        timestamps = list([ports.ix[i]['date'] for i in ports.index])
+        timestamps.sort()
+        vol, daily_ret, sharpe, cum_ret = analyzer.benchmark(["$SPX"], timestamps)
+
+        self.assertAlmostEqual(-0.177204632551, sharpe, 7,"Result Sharpe Ratio: " + str(sharpe) +" is incorrect", delta=None)
+        self.assertAlmostEqual(vol, 0.0149914504972, 7, "Volatility (stdev of daily returns) " + str(vol) +" is incorrect", delta=None)
+        self.assertAlmostEqual(daily_ret, -0.000167347202139, 7, "Average Daily Return " + str(daily_ret) +" is incorrect", delta=None)
+        self.assertAlmostEqual(cum_ret, 0.937041848381,7, "Result: " + str(cum_ret) +" doesn't match expected Cumulative Return", delta=None)
 
 
 if __name__ == "__main__":
