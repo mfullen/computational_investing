@@ -88,7 +88,12 @@ class MarketSim(object):
         for c in cash:
             df_cash.ix[i,0] = c
             i +=1
-        #print df_cash
+        
+        #remove duplicate date indexes
+        df_cash["index"] = df_cash.index
+        df_cash.drop_duplicates(cols='index', take_last=True, inplace=True)
+        del df_cash["index"]
+
         return df_cash
   
     def process_money(self, account, action, num):
