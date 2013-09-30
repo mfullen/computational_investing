@@ -8,6 +8,7 @@ import math
 
 import QSTK.qstkutil.DataAccess as da
 import QSTK.qstkutil.qsdateutil as du
+import QSTK.qstkutil.tsutil as tsu
 import datetime as dt
 import numpy as np
 import pandas as pd
@@ -27,6 +28,13 @@ class Analyze(object):
         # create a date object column for convenient comparison
         trades.insert(0, 'date', [dt.datetime(trades['year'][i],trades['month'][i],trades['day'][i],16,0,0) for i in trades.index])
         
+        # clean up unused columns
+        del(trades['year'])
+        del(trades['month'])
+        del(trades['day'])
+        
+        trades = trades.set_index(trades['date'])
+        del(trades['date'])
         return trades
 
     def __init__(self):
@@ -35,14 +43,34 @@ class Analyze(object):
         '''
         
     def simulate(self,ports):
-        #ports.sort(key=lambda x: x.date)
-        #print ports.ix[0]
-        adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
+        #adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
+        adjusted = ports
         print adjusted
         normalized = adjusted / adjusted[0,:]
         #print normalized
         #calculate daily return, [252,1]
         daily_ret_matrix = np.zeros((len(normalized) , 1)) 
+        
+        df_rets = adjusted.copy()
+        # Filling the data.
+        df_rets = df_rets.fillna(method='ffill')
+        df_rets = df_rets.fillna(method='bfill')
+        
+        # Numpy matrix of filled data values
+        na_rets = df_rets.values
+        na_rets = na_rets / na_rets[0, :]
+        
+        na_portrets = np.sum(na_rets, axis=1)
+        cum_ret = na_portrets[-1]
+        tsu.returnize0(na_portrets)
+    
+        # Statistics to calculate
+        stddev = np.std(na_portrets)
+        daily_ret = np.mean(na_portrets)
+        sharpe = (np.sqrt(252) * daily_ret) / stddev
+    
+        # Return all the variables
+        '''return stddev, daily_ret, sharpe, cum_ret
 
         for i in range(1, len(normalized)): 
             daily_ret_matrix[i-1] = (normalized[i] / normalized[i-1]) - 1 
@@ -56,7 +84,7 @@ class Analyze(object):
         cumulative_return = normalized[len(normalized)-1][0]
         
         return volatility, daily_return, sharpe_ratio, cumulative_return
-        
+        '''
     def benchmark(self, symbols,dates):
         ldt_timestamps = du.getNYSEdays(dates[0], dates[-1], dt.timedelta(hours=16))
         ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
@@ -96,12 +124,11 @@ class Analyze(object):
 if __name__ == "__main__":
     analyzer = Analyze()
     ports = analyzer.portfolio_from_file("values.csv")
-    #analyzer.simulate(ports)
-    timestamps = list([ports.ix[i]['date'] for i in ports.index])
+    timestamps = list([i for i in ports.index])
     timestamps.sort()
     #print timestamps
     volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.benchmark(["$SPX"], timestamps)
-    volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(ports)
+    #volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(ports)
     print volatility
     print daily_return
     print sharpe_ratio
