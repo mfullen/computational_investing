@@ -42,7 +42,7 @@ class Hw3Test(unittest.TestCase):
         print("===============testExample1Part2===============")
         analyzer = Analyze()
         ports = analyzer.portfolio_from_file("values1.csv")
-        timestamps = list([ports.ix[i]['date'] for i in ports.index])
+        timestamps = list([i for i in ports.index])
         timestamps.sort()
         vol, daily_ret, sharpe, cum_ret = analyzer.benchmark(["$SPX"], timestamps)
 
@@ -55,7 +55,7 @@ class Hw3Test(unittest.TestCase):
         print("===============testExample2Part2===============")
         analyzer = Analyze()
         ports = analyzer.portfolio_from_file("values2.csv")
-        timestamps = list([ports.ix[i]['date'] for i in ports.index])
+        timestamps = list([i for i in ports.index])
         timestamps.sort()
         vol, daily_ret, sharpe, cum_ret = analyzer.benchmark(["$SPX"], timestamps)
 

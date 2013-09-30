@@ -48,43 +48,44 @@ class Analyze(object):
         #ports = ports.fillna(method='ffill')
         #ports = ports.fillna(method='bfill')
         adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
-        adjusted = [a[0] for a in adjusted if(a != 0)]
-        adjusted= np.array(adjusted).reshape((len(adjusted),1))
+        #adjusted = [a[0] for a in adjusted if(a != 0)]
+        #adjusted= np.array(adjusted).reshape((len(adjusted),1))
         print adjusted
         normalized = adjusted / adjusted[0,:]
         #print normalized
         #calculate daily return, [252,1]
         daily_ret_matrix = np.zeros((len(normalized) , 1)) 
         
-        df_rets = adjusted.copy()
+        #df_rets = adjusted.copy()
         # Filling the data.
         #df_rets = df_rets.fillna(method='ffill')
         #df_rets = df_rets.fillna(method='bfill')
         
         # Numpy matrix of filled data values
-        na_rets = df_rets
-        na_rets = na_rets / na_rets[0, :]
+        #na_rets = df_rets
+        #na_rets = na_rets / na_rets[0, :]
         
+        #print "na_rets"
         #print na_rets
         
-        na_portrets = np.sum(na_rets, axis=1)
+        #na_portrets = np.sum(na_rets)
         
+        #print "na_portrets"
         #print na_portrets
-        cum_ret = na_portrets[-1]
-        tsu.returnize0(na_portrets)
+        #cum_ret = na_portrets[-1]
+        #tsu.returnize0(na_portrets)
     
-        print na_portrets
+        #print na_portrets
         # Statistics to calculate
-        stddev = np.std(na_portrets)
-        daily_ret = np.mean(na_portrets)
-        sharpe = (np.sqrt(252) * daily_ret) / stddev
+        #stddev = np.std(na_portrets)
+        #daily_ret = np.mean(na_portrets)
+        #sharpe = (np.sqrt(252) * daily_ret) / stddev
     
         # Return all the variables
-        return stddev, daily_ret, sharpe, cum_ret
+        #return stddev, daily_ret, sharpe, cum_ret
         
-        '''for i in range(1, len(na_rets)): 
-            if(na_rets[i] != 0 and na_rets[i-1] != 0):
-                daily_ret_matrix[i-1] = (na_rets[i] / na_rets[i-1]) - 1 
+        for i in range(1, len(normalized)): 
+                daily_ret_matrix[i-1] = (normalized[i] / normalized[i-1]) - 1 
         
         #print daily_ret_matrix
             
@@ -92,10 +93,10 @@ class Analyze(object):
         volatility = daily_ret_matrix.std()
         daily_return = np.mean(daily_ret_matrix)
         sharpe_ratio = math.sqrt(252) * daily_return / volatility
-        cumulative_return = na_rets[len(na_rets)-1][0]
+        cumulative_return = normalized[len(normalized)-1][0]
         
         return volatility, daily_return, sharpe_ratio, cumulative_return
-        '''
+        
     def benchmark(self, symbols,dates):
         ldt_timestamps = du.getNYSEdays(dates[0], dates[-1], dt.timedelta(hours=16))
         ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']

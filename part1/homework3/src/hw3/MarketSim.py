@@ -187,21 +187,26 @@ class MarketSim(object):
         lols = np.zeros((len(values),1))
         
         #lols = np.array(lols).reshape((len(row),1))
-        print lols
+        #print lols
         df_real_cash = pd.DataFrame(lols,index=index, columns=['cash'])
+        print "df_real_cash"
         print df_real_cash
         
         row =  df_cash['cash']
+        print "length: " + str(len(row))
+        print row
         for i in range(0,len(row)):
             row_index = row.index[i]
             #print row_index
-            df_real_cash.ix[row_index.strftime("%Y-%m-%d")]= row.ix[row_index.strftime("%Y-%m-%d")]
+            #df_real_cash.ix[row_index.strftime("%Y-%m-%d")] = row.ix[row_index.strftime("%Y-%m-%d")]
+            df_real_cash.ix[row_index.strftime("%Y-%m-%d"):] = row.ix[row_index.strftime("%Y-%m-%d")]
         
         print df_real_cash.ix[0:20]
+        print df_real_cash.ix[230:250]
         
         print "Cums + cash"
         total_cash = (df_cums['cums'] + df_real_cash['cash'])
-        print total_cash.ix[230:250]
+        print total_cash.ix[0:20]
         
         return total_cash
        
