@@ -38,7 +38,7 @@ class Analyze(object):
         #ports.sort(key=lambda x: x.date)
         #print ports.ix[0]
         adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
-        #print adjusted
+        print adjusted
         normalized = adjusted / adjusted[0,:]
         #print normalized
         #calculate daily return, [252,1]
@@ -55,10 +55,7 @@ class Analyze(object):
         sharpe_ratio = math.sqrt(252) * daily_return / volatility
         cumulative_return = normalized[len(normalized)-1][0]
         
-        print volatility
-        print daily_return
-        print sharpe_ratio
-        print cumulative_return
+        return volatility, daily_return, sharpe_ratio, cumulative_return
         
     def benchmark(self, symbols,dates):
         ldt_timestamps = du.getNYSEdays(dates[0], dates[-1], dt.timedelta(hours=16))
@@ -104,6 +101,7 @@ if __name__ == "__main__":
     timestamps.sort()
     #print timestamps
     volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.benchmark(["$SPX"], timestamps)
+    volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(ports)
     print volatility
     print daily_return
     print sharpe_ratio

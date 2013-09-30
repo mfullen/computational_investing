@@ -22,6 +22,7 @@ class Hw3Test(unittest.TestCase):
         account = BankAccount()
         account.deposit(1000000)
         cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
+        cash_matrix = sim.do_It(matrix,orders,account,cash_matrix)
         sim.cash_to_csv("values1.csv",cash_matrix)
         self.assertEqual(1133860, account.get_balance(), "The balance doesn't match the expected value")
     
@@ -33,6 +34,7 @@ class Hw3Test(unittest.TestCase):
         account = BankAccount()
         account.deposit(1000000)
         cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
+        cash_matrix = sim.do_It(matrix,orders,account,cash_matrix)
         sim.cash_to_csv("values2.csv",cash_matrix)
         self.assertEqual(1078753, math.ceil(account.get_balance()), "The balance (" + str(account.get_balance()) +") doesn't match the expected value")
     
