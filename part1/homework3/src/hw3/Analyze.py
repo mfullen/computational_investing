@@ -55,34 +55,7 @@ class Analyze(object):
         #print normalized
         #calculate daily return, [252,1]
         daily_ret_matrix = np.zeros((len(normalized) , 1)) 
-        
-        #df_rets = adjusted.copy()
-        # Filling the data.
-        #df_rets = df_rets.fillna(method='ffill')
-        #df_rets = df_rets.fillna(method='bfill')
-        
-        # Numpy matrix of filled data values
-        #na_rets = df_rets
-        #na_rets = na_rets / na_rets[0, :]
-        
-        #print "na_rets"
-        #print na_rets
-        
-        #na_portrets = np.sum(na_rets)
-        
-        #print "na_portrets"
-        #print na_portrets
-        #cum_ret = na_portrets[-1]
-        #tsu.returnize0(na_portrets)
-    
-        #print na_portrets
-        # Statistics to calculate
-        #stddev = np.std(na_portrets)
-        #daily_ret = np.mean(na_portrets)
-        #sharpe = (np.sqrt(252) * daily_ret) / stddev
-    
-        # Return all the variables
-        #return stddev, daily_ret, sharpe, cum_ret
+      
         
         for i in range(1, len(normalized)): 
                 daily_ret_matrix[i-1] = (normalized[i] / normalized[i-1]) - 1 
@@ -135,7 +108,7 @@ class Analyze(object):
         
 if __name__ == "__main__":
     analyzer = Analyze()
-    ports = analyzer.portfolio_from_file("values2.csv")
+    ports = analyzer.portfolio_from_file("values1.csv")
     timestamps = list([i for i in ports.index])
     timestamps.sort()
     #print timestamps

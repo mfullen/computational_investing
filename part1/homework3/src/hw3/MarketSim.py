@@ -105,6 +105,55 @@ class MarketSim(object):
         elif (action== 'Sell'):
                 return account.deposit(num)
             
+    def myMethod(self,price_matrix, orders):
+        timestamps = list(set([o.get_order_date() for o in orders]))
+        timestamps.sort()
+        ldt_timestamps = du.getNYSEdays(timestamps[0], timestamps[-1] + dt.timedelta(days=1), dt.timedelta(hours=16))
+        symbols = list(set([o.get_symbol() for o in orders]))
+        
+        own = matrix.copy()
+        #set all owned shares to 0
+        own = own.ix[0:] * 0
+        
+        for order in orders:
+            symbol = order.get_symbol()
+            date = order.get_order_date()
+            shares = order.get_number_of_shares()
+            action = order.get_action()
+            
+            if(action == 'Buy'):
+                own.ix[date.strftime("%Y-%m-%d")][symbol] = shares*1.0
+                
+            elif (action== 'Sell'):
+                own.ix[date.strftime("%Y-%m-%d")][symbol] = shares*-1.0
+                
+            value = own.ix[date.strftime("%Y-%m-%d")][symbol][0]
+            own.ix[date.strftime("%Y-%m-%d")][symbol] = value
+            
+        print "==============Prices========================" 
+        print matrix.ix[0:20]
+        print matrix.ix[220:240]
+        print "==============Shares========================" 
+        print own.ix[0:20]
+        print own.ix[220:240]
+        
+        print "============CASH============"
+        np_zeroc = np.zeros(len(ldt_timestamps) )
+        ts_cash = pd.Series(np_zeroc, index=ldt_timestamps)
+        yesterdays_cash = 1000000
+        for i in ldt_timestamps:
+            todays_cash = 0.0
+            for symb in symbols:
+                #print "=========="
+                #print own[symb][0]
+                todays_cash -=  own[symb][0] * matrix[symb][0]
+                #Store todays cash:
+            ts_cash[i] = todays_cash + yesterdays_cash
+            # set yesterdays_cash to todays new total for next loop
+            yesterdays_cash = ts_cash[i]
+            
+        print ts_cash
+            
     def do_It(self,matrix,orders,account,df_cash):
         orders.sort(key=lambda x: x.order_date)
         #copy matrix shape
@@ -254,6 +303,36 @@ class MarketSim(object):
        
         #print np.cumsum(own,axis=1)
         '''
+    def bestMethod(self,price_matrix, filename):
+        orders = pd.read_csv(filename, names=['year', 'month', 'day', 'symbol', 'sell_or_buy', 'quantity', 'empty'], parse_dates={'datetime':['year', 'month', 'day']})
+        orders['symbol'].drop_duplicates().reset_index(drop=True)
+        orders['sell_or_buy'] = 2*(orders['sell_or_buy'] == 'Buy')-1
+        
+        dates = list(set(orders['datetime'].tolist()))
+        all_dates = du.getNYSEdays(min(dates), max(dates), dt.timedelta(hours=16))
+        
+        print orders
+        
+        trade = matrix.copy()
+        trade *= 0
+
+        for col in orders.index:
+            sym = orders.ix[col]['symbol']
+            date = orders.ix[col]['datetime'].strftime("%Y-%m-%d")
+            print date
+            sell_or_buy = orders.ix[col]['sell_or_buy']
+            shares = orders.ix[col]['quantity']
+            trade.ix[date][sym][0] = sell_or_buy * shares
+        
+        print "==============trade========================" 
+        print trade.ix[0:20]
+        print trade.ix[220:240]
+        
+        print "==============Values========================" 
+        value = trade * price_matrix
+        print value.ix[0:20]
+        print value.ix[220:240]
+        
         
   
 if __name__ == "__main__":
@@ -263,12 +342,12 @@ if __name__ == "__main__":
 
     account = BankAccount()
     account.deposit(1000000)
-    print account.get_balance()
+    #print account.get_balance()
+    x = sim.bestMethod(matrix, "orders.csv")
     
-    
-    cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
-    cash_matrix = sim.do_It(matrix,orders,account,cash_matrix)
-    sim.cash_to_csv("values.csv",cash_matrix)
-    print "Account Balance"
-    print account.get_balance()
+    #cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
+    #cash_matrix = sim.do_It(matrix,orders,account,cash_matrix)
+    #sim.cash_to_csv("values.csv",cash_matrix)
+    #print "Account Balance"
+    #print account.get_balance()
 
