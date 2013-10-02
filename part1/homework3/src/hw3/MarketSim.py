@@ -309,23 +309,34 @@ class MarketSim(object):
         orders['sell_or_buy'] = 2*(orders['sell_or_buy'] == 'Buy')-1
         
         dates = list(set(orders['datetime'].tolist()))
-        all_dates = du.getNYSEdays(min(dates), max(dates), dt.timedelta(hours=16))
+        all_dates = du.getNYSEdays(min(dates), max(dates)+ dt.timedelta(days=1), dt.timedelta(hours=16))
+        print all_dates
+        symbols = list(set(orders['symbol']))
         
         print orders
         
         trade = matrix.copy()
         trade *= 0
 
+        i = 0
         for col in orders.index:
             sym = orders.ix[col]['symbol']
             date = orders.ix[col]['datetime'].strftime("%Y-%m-%d")
             print date
             sell_or_buy = orders.ix[col]['sell_or_buy']
             shares = orders.ix[col]['quantity']
-            trade.ix[date][sym][0] = sell_or_buy * shares
+            trade_exists = trade.ix[date][sym][0] != 0
+            
+            if(trade_exists):
+                trade.ix[date][sym][0] = (sell_or_buy * shares) + trade.ix[date][sym][0]
+            else:
+                trade.ix[date][sym][0] = sell_or_buy * shares
+            i= i + 1
+        print"Number of orders put into trades matrix: " + str(i)
         
         print "==============trade========================" 
         print trade.ix[0:20]
+        print trade.ix[125:150]
         print trade.ix[220:240]
         
         print "==============Values========================" 
@@ -333,7 +344,73 @@ class MarketSim(object):
         print value.ix[0:20]
         print value.ix[220:240]
         
+        np_zeroc = np.zeros(len(all_dates) )
+        ts_values = pd.Series(np_zeroc, index=all_dates)
+        value['_TOTAL'] = ts_values
         
+        print "==============TOTAL Values========================" 
+        value = value.cumsum(axis=1)
+        print value.ix[0:20]
+        print value.ix[220:240]
+        
+        np_zeroc = np.zeros(len(all_dates) )
+        ts_cash = pd.Series(np_zeroc, index=all_dates)
+        yesterdays_cash = 1000000
+        
+        print "Creating CASH============================"
+        for i in all_dates:
+            d = i.strftime("%Y-%m-%d")
+            #print "Start Day: " + d
+            todays_cash = 0.0
+            for sym in symbols:
+                #print "Todays Cash = " + str(todays_cash) + " - " + str(trade.ix[d][sym][0]) + " * " + str(price_matrix[d][sym][0]) + " = " + str((todays_cash - (trade.ix[d][sym][0] * price_matrix[d][sym][0]))) 
+                todays_cash -=  trade.ix[d][sym][0] * price_matrix[d][sym][0]   
+                #Store todays cash:
+            #ts_cash[i] = todays_cash + yesterdays_cash
+            ts_cash[i] = todays_cash
+            # set yesterdays_cash to todays new total for next loop
+            yesterdays_cash = ts_cash[i]
+            #print "END Day: " + str(ts_cash[i])+" ==============================="
+        
+        print "==============Cash========================" 
+        print ts_cash.ix[0:20]
+        print ts_cash.ix[220:240]
+        
+        price_matrix['_CASH'] = 1.0
+        trade['_CASH'] = ts_cash
+        holdingMatrix = trade.cumsum()
+        print "==============Holding Matrix========================" 
+        print holdingMatrix.ix[0:20]
+        print holdingMatrix.ix[220:240]
+        
+        print "==============Price========================" 
+        print price_matrix.ix[0:20]
+        print price_matrix.ix[125:150]
+        print price_matrix.ix[220:240]
+        
+        print price_matrix.shape
+        print price_matrix
+        print holdingMatrix.shape
+        print holdingMatrix
+        #holdingValue = price_matrix * holdingMatrix
+        holdingValue = holdingMatrix.dot(price_matrix)
+        
+        print "==============holdingValue========================" 
+        holdingValue= holdingValue.flatten()
+        holdingValue = holdingValue.reshape((len(holdingValue),1))
+        print holdingValue
+        '''
+        print holdingValue.ix[0:20]
+        print holdingValue.ix[125:150]
+        print holdingValue.ix[220:240]
+        '''
+        '''
+        print "==============Total Cash Per day========================" 
+        #holdingValue= holdingValue.flatten()
+        #holdingValue = holdingValue.reshape((len(holdingValue),1))
+        holdingValue = holdingValue.sum(axis=1)
+        print holdingValue
+        '''
   
 if __name__ == "__main__":
     sim = MarketSim()
