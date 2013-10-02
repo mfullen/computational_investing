@@ -50,23 +50,23 @@ class Analyze(object):
         adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
         #adjusted = [a[0] for a in adjusted if(a != 0)]
         #adjusted= np.array(adjusted).reshape((len(adjusted),1))
+        print "Adjusted======================="
         print adjusted
-        normalized = adjusted / adjusted[0,:]
-        #print normalized
-        #calculate daily return, [252,1]
-        daily_ret_matrix = np.zeros((len(normalized) , 1)) 
-      
+
         
-        for i in range(1, len(normalized)): 
-                daily_ret_matrix[i-1] = (normalized[i] / normalized[i-1]) - 1 
+        na_normalized_price = adjusted / adjusted[0, :]
+        na_rets = na_normalized_price.copy()
+        portf_rets=(na_rets).sum(axis=1) #normalized value of portfolio with given allocation
+        print portf_rets
+        tsu.returnize0(portf_rets)    
+        print portf_rets
+        volatility=portf_rets.std(axis=0)
+        daily_return=portf_rets.mean(axis=0)
+        cumulative_return=(na_normalized_price[-1]).sum(axis=0) # index -1 is last one
+        #sharpe_ratio=math.sqrt(252)*daily_return/volatility
+        sharpe_ratio=tsu.get_sharpe_ratio(portf_rets)
         
-        #print daily_ret_matrix
-            
-        #calculate cumulative daily return, [252,1]
-        volatility = daily_ret_matrix.std()
-        daily_return = np.mean(daily_ret_matrix)
-        sharpe_ratio = math.sqrt(252) * daily_return / volatility
-        cumulative_return = normalized[len(normalized)-1][0]
+        
         
         return volatility, daily_return, sharpe_ratio, cumulative_return
         
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     timestamps = list([i for i in ports.index])
     timestamps.sort()
     #print timestamps
-    volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.benchmark(["$SPX"], timestamps)
+    #volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.benchmark(["$SPX"], timestamps)
     volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(ports)
     print volatility
     print daily_return

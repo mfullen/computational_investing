@@ -303,7 +303,7 @@ class MarketSim(object):
        
         #print np.cumsum(own,axis=1)
         '''
-    def bestMethod(self,price_matrix, filename):
+    def bestMethod(self,price_matrix, start_money, filename):
         orders = pd.read_csv(filename, names=['year', 'month', 'day', 'symbol', 'sell_or_buy', 'quantity', 'empty'], parse_dates={'datetime':['year', 'month', 'day']})
         orders['symbol'].drop_duplicates().reset_index(drop=True)
         orders['sell_or_buy'] = 2*(orders['sell_or_buy'] == 'Buy')-1
@@ -355,8 +355,8 @@ class MarketSim(object):
         
         np_zeroc = np.zeros(len(all_dates) )
         ts_cash = pd.Series(np_zeroc, index=all_dates)
-        yesterdays_cash = 1000000
         
+        yesterdays_cash = start_money
         print "Creating CASH============================"
         for i in all_dates:
             d = i.strftime("%Y-%m-%d")
@@ -366,8 +366,8 @@ class MarketSim(object):
                 #print "Todays Cash = " + str(todays_cash) + " - " + str(trade.ix[d][sym][0]) + " * " + str(price_matrix[d][sym][0]) + " = " + str((todays_cash - (trade.ix[d][sym][0] * price_matrix[d][sym][0]))) 
                 todays_cash -=  trade.ix[d][sym][0] * price_matrix[d][sym][0]   
                 #Store todays cash:
-            #ts_cash[i] = todays_cash + yesterdays_cash
-            ts_cash[i] = todays_cash
+            ts_cash[i] = todays_cash + yesterdays_cash
+            #ts_cash[i] = todays_cash
             # set yesterdays_cash to todays new total for next loop
             yesterdays_cash = ts_cash[i]
             #print "END Day: " + str(ts_cash[i])+" ==============================="
@@ -393,12 +393,36 @@ class MarketSim(object):
         print holdingMatrix.shape
         print holdingMatrix
         #holdingValue = price_matrix * holdingMatrix
-        holdingValue = holdingMatrix.dot(price_matrix)
+        
+        np_zeroc = np.zeros(len(all_dates) )
+        ts_final = pd.Series(np_zeroc, index=all_dates)
+
+        print "Creating Final Total============================"
+        for i in all_dates:
+            d = i.strftime("%Y-%m-%d")
+            #print "Start Day: " + d
+            todays_cash = 0.0
+            for sym in symbols:
+                #print "Todays Cash = " + str(todays_cash) + " - " + str(holdingMatrix.ix[d][sym][0]) + " * " + str(price_matrix[d][sym][0]) + " = " + str(holdingMatrix.ix[d][sym][0] * price_matrix[d][sym][0])
+                todays_cash +=  holdingMatrix.ix[d][sym][0] * price_matrix[d][sym][0]   
+                #Store todays cash:
+            #ts_cash[i] = todays_cash + yesterdays_cash
+            ts_final[i] = todays_cash + (ts_cash.ix[d][0])
+            # set yesterdays_cash to todays new total for next loop
+            #print "END Day: " + str(ts_final[i])+" ==============================="
+        
+        print "==============ts_final Matrix========================" 
+        print ts_final.ix[0:20]
+        print ts_final.ix[220:240]
+        
+        return ts_final
+        '''holdingValue = holdingMatrix.dot(price_matrix)
         
         print "==============holdingValue========================" 
         holdingValue= holdingValue.flatten()
         holdingValue = holdingValue.reshape((len(holdingValue),1))
         print holdingValue
+        '''
         '''
         print holdingValue.ix[0:20]
         print holdingValue.ix[125:150]
@@ -417,14 +441,12 @@ if __name__ == "__main__":
     orders = sim.orders_from_file("orders.csv")
     matrix = sim.get_adjustedclose_matrix(orders)
 
-    account = BankAccount()
-    account.deposit(1000000)
     #print account.get_balance()
-    x = sim.bestMethod(matrix, "orders.csv")
+    x = sim.bestMethod(matrix, 1000000, "quiz-orders2.csv")
     
     #cash_matrix = sim.proccess_market_transaction(account,orders, matrix)
     #cash_matrix = sim.do_It(matrix,orders,account,cash_matrix)
-    #sim.cash_to_csv("values.csv",cash_matrix)
+    sim.cash_to_csv("values.csv",x)
     #print "Account Balance"
     #print account.get_balance()
 
