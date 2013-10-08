@@ -7,7 +7,6 @@ import math
 import unittest
 
 from Analyze import Analyze
-from BankAccount import BankAccount
 from MarketSim import MarketSim
 
 
@@ -20,7 +19,7 @@ class Hw3Test(unittest.TestCase):
         sim = MarketSim()
         orders = sim.orders_from_file(orders_file)
         matrix = sim.get_adjustedclose_matrix(orders)
-        cash_matrix = sim.bestMethod(matrix, 1000000, orders_file)
+        cash_matrix = sim.calculate_cash(matrix, 1000000, orders_file)
         sim.cash_to_csv("values1.csv",cash_matrix)
         self.assertEqual(1133860, cash_matrix[-1], "The balance doesn't match the expected value")
     
@@ -30,7 +29,7 @@ class Hw3Test(unittest.TestCase):
         sim = MarketSim()
         orders = sim.orders_from_file(orders_file)
         matrix = sim.get_adjustedclose_matrix(orders)
-        cash_matrix = sim.bestMethod(matrix, 1000000, orders_file)
+        cash_matrix = sim.calculate_cash(matrix, 1000000, orders_file)
         sim.cash_to_csv("values2.csv",cash_matrix)
         self.assertEqual(1078753, math.ceil(cash_matrix[-1]), "The balance (" + str(cash_matrix[-1]) +") doesn't match the expected value")
     
