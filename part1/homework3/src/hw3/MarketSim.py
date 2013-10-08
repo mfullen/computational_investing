@@ -315,7 +315,7 @@ class MarketSim(object):
         
         print orders
         
-        trade = matrix.copy()
+        trade = price_matrix.copy()
         trade *= 0
 
         i = 0

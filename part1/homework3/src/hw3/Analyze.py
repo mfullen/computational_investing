@@ -37,36 +37,49 @@ class Analyze(object):
         del(trades['date'])
         return trades
 
+    def read_values(self,valuesfile):
+        """Read values to a Panda DataFrame"""
+    
+        li_cols = [0, 1, 2, 3]
+        ls_names = ['YEAR', 'MONTH', 'DAY', 'TOTAL']
+        d_date_columns = { 'DATE': ['YEAR', 'MONTH', 'DAY']}
+        s_index_column = 'DATE'
+        df_values = pd.read_csv(valuesfile, \
+                                dtype={'TOTAL': np.float64}, \
+                                sep=',', \
+                                comment='#', \
+                                skipinitialspace=True, \
+                                header=None, \
+                                usecols=li_cols, \
+                                names=ls_names, \
+                                parse_dates=d_date_columns, \
+                                index_col=s_index_column)
+        if not df_values.index.is_monotonic:
+            df_values.sort_index(inplace=True)
+    
+        return df_values
+    
     def __init__(self):
         '''
         Constructor
         '''
         
     def simulate(self,ports):
-        #adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
-        #print ports
-        #ports = ports.fillna(method='ffill')
-        #ports = ports.fillna(method='bfill')
-        adjusted = ports['cum_port'].values.reshape((len(ports['cum_port']), 1))
-        #adjusted = [a[0] for a in adjusted if(a != 0)]
-        #adjusted= np.array(adjusted).reshape((len(adjusted),1))
-        print "Adjusted======================="
-        print adjusted
-
-        
-        na_normalized_price = adjusted / adjusted[0, :]
-        na_rets = na_normalized_price.copy()
-        portf_rets=(na_rets).sum(axis=1) #normalized value of portfolio with given allocation
-        print portf_rets
-        tsu.returnize0(portf_rets)    
-        print portf_rets
-        volatility=portf_rets.std(axis=0)
-        daily_return=portf_rets.mean(axis=0)
-        cumulative_return=(na_normalized_price[-1]).sum(axis=0) # index -1 is last one
-        #sharpe_ratio=math.sqrt(252)*daily_return/volatility
-        sharpe_ratio=tsu.get_sharpe_ratio(portf_rets)
-        
-        
+        # Extract just the data (as floating point values)
+        na_values = ports.values * 1.0
+    
+        # Normalize
+        na_norm_values = na_values / na_values[0, :]
+    
+        # Returnize the values
+        na_returns = na_norm_values.copy()
+        tsu.returnize0(na_returns)
+    
+        # Calculate statistical values
+        daily_return = np.mean(na_returns)
+        cumulative_return = np.prod(na_returns + 1.0)
+        volatility = np.std(na_returns)
+        sharpe_ratio = math.sqrt(252.0) * daily_return / volatility
         
         return volatility, daily_return, sharpe_ratio, cumulative_return
         
@@ -108,12 +121,15 @@ class Analyze(object):
         
 if __name__ == "__main__":
     analyzer = Analyze()
-    ports = analyzer.portfolio_from_file("values1.csv")
+    filename = "values1.csv"
+    ports = analyzer.portfolio_from_file(filename)
     timestamps = list([i for i in ports.index])
     timestamps.sort()
     #print timestamps
     #volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.benchmark(["$SPX"], timestamps)
-    volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(ports)
+    
+    p2 = analyzer.read_values(filename)
+    volatility, daily_return, sharpe_ratio, cumulative_return = analyzer.simulate(p2)
     print volatility
     print daily_return
     print sharpe_ratio
