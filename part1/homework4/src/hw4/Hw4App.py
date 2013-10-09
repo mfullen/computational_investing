@@ -101,7 +101,7 @@ if __name__ == '__main__':
     dt_end = dt.datetime(2009, 12, 31)
     #dt_end = dt.datetime(2008, 1, 5)
     symbols_list = 'sp5002012'
-    event_price = 5.0
+    event_price = 8.0
     
     app = Hw4App()
     app.event_study(dt_start, dt_end, symbols_list, event_price)
@@ -123,6 +123,19 @@ if __name__ == '__main__':
     vol, daily_ret, sharpe, cum_ret = analyzer.benchmark(["$SPX"], timestamps)
     p2 = analyzer.read_values(filename)
     pt_volatility, pt_daily_return, pt_sharpe_ratio, pt_cumulative_return = analyzer.simulate(p2)
+    
+    print "Market Sharpe Ratio", sharpe
+    print "Market vol", vol
+    print "Market daily_ret", daily_ret
+    print "Market cum_ret", cum_ret
+    
+    print ""
+    
+    print "Fund Sharpe Ratio", pt_sharpe_ratio
+    print "Fund pt_volatility", pt_volatility
+    print "Fund pt_daily_return", pt_daily_return
+    print "Fund pt_cumulative_return", pt_cumulative_return
+    
     
     
     
