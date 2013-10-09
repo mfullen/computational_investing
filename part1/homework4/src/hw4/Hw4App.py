@@ -15,13 +15,16 @@ import QSTK.qstkutil.tsutil as tsu
 import csv
 import QSTK.qstkstudy.EventProfiler as ep
 
+from hw3.MarketSim import MarketSim
+from hw3.Analyze import Analyze
+
 class Hw4App(object):
     
      def __init__(self):
         '''
         Constructor
         '''
-     def find_events(self,ls_symbols, d_data):
+     def find_events(self,ls_symbols, d_data, event_price):
         ''' Finding the event dataframe '''
         df_close = d_data['actual_close']
         ts_market = df_close['SPY']
@@ -42,9 +45,7 @@ class Hw4App(object):
                     # Calculating the returns for this timestamp
                     f_symprice_today = df_close[s_sym].ix[ldt_timestamps[i]]
                     f_symprice_yest = df_close[s_sym].ix[ldt_timestamps[i - 1]]
-                    f_marketprice_today = ts_market.ix[ldt_timestamps[i]]
-                    f_marketprice_yest = ts_market.ix[ldt_timestamps[i - 1]]
-                    f_cutoff = 5.0
+                    f_cutoff = event_price
                     if f_symprice_today < f_cutoff and f_symprice_yest >= f_cutoff:
                         df_events[s_sym].ix[ldt_timestamps[i]] = 1
                         buy_date = ldt_timestamps[i]
@@ -66,7 +67,7 @@ class Hw4App(object):
             return df_events
 
 
-     def event_study(self, dt_start, dt_end, symbols_list):
+     def event_study(self, dt_start, dt_end, symbols_list, event_price):
         ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt.timedelta(hours=16))
 
         print "Data Access"
@@ -84,10 +85,12 @@ class Hw4App(object):
             d_data[s_key] = d_data[s_key].fillna(method = 'ffill')
             d_data[s_key] = d_data[s_key].fillna(method = 'bfill')
             d_data[s_key] = d_data[s_key].fillna(1.0)
-        df_events = self.find_events(ls_symbols, d_data)
+            
+        df_events = self.find_events(ls_symbols, d_data, event_price)
+        
         print "Creating Study"
         date_str= str(dt_start.month) + "-" + str(dt_start.year) + "_" + str(dt_end.month) + "-" + str(dt_end.year)
-        filename = "EventStudy-" + date_str + ".pdf"
+        filename = "EventStudy-" + date_str + "Price- " + str(event_price) + ".pdf"
         ep.eventprofiler(df_events, d_data, i_lookback=20, i_lookforward=20,
                      s_filename=filename, b_market_neutral=True, b_errorbars=True,
                     s_market_sym='SPY')
@@ -98,9 +101,28 @@ if __name__ == '__main__':
     dt_end = dt.datetime(2009, 12, 31)
     #dt_end = dt.datetime(2008, 1, 5)
     symbols_list = 'sp5002012'
+    event_price = 5.0
     
     app = Hw4App()
-    app.event_study(dt_start, dt_end, symbols_list)
+    app.event_study(dt_start, dt_end, symbols_list, event_price)
+    
+    orders_file = "event_orders.csv"
+    sim = MarketSim()
+    orders = sim.orders_from_file(orders_file)
+    matrix = sim.get_adjustedclose_matrix(orders)
+    cash_matrix = sim.calculate_cash(matrix, 50000, orders_file)
+    values_file = "event_values.csv"
+    sim.cash_to_csv(values_file,cash_matrix)
+    
+    analyzer = Analyze()
+    values_file = "event_values.csv"
+    filename = values_file
+    ports = analyzer.portfolio_from_file(filename)
+    timestamps = list([i for i in ports.index])
+    timestamps.sort()
+    vol, daily_ret, sharpe, cum_ret = analyzer.benchmark(["$SPX"], timestamps)
+    p2 = analyzer.read_values(filename)
+    pt_volatility, pt_daily_return, pt_sharpe_ratio, pt_cumulative_return = analyzer.simulate(p2)
     
     
     
