@@ -19,9 +19,9 @@ if __name__ == '__main__':
     print "Hello World"
     ls_symbols = ['AAPL','GOOG','IBM','MSFT']
     dt_start = dt.datetime(2010,1,1 )
-    dt_end = dt.datetime(2010, 5, 12)
+    dt_end = dt.datetime(2010, 12, 31)
     dt_timeofday = dt.timedelta(hours=16)
-    ldt_timestamps = du.getNYSEdays(dt_start, dt_end + dt.timedelta(days=1), dt_timeofday)
+    ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt_timeofday)
     c_dataobj = da.DataAccess('Yahoo')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldf_data = c_dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
@@ -34,11 +34,6 @@ if __name__ == '__main__':
    
     rolling_mean = pd.rolling_mean(prices,20)
     rolling_std = pd.rolling_std(prices,20)
-    price_last = prices.values[-1]
-    mean_last = rolling_mean.values[-1]
-    std_last = rolling_std.values[-1]
+    bollinger_val = (prices - rolling_mean)/rolling_std
     
-    rol_val = (price_last-mean_last)/std_last
-    
-    print rolling_mean
-    print rol_val
+    print bollinger_val.values
