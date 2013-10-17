@@ -13,13 +13,15 @@ import QSTK.qstkutil.DataAccess as da
 import QSTK.qstkutil.tsutil as tsu
 import QSTK.qstkstudy.EventProfiler as ep
 
+
+
 if __name__ == '__main__':
     print "Hello World"
     ls_symbols = ['AAPL','GOOG','IBM','MSFT']
     dt_start = dt.datetime(2010,1,1 )
-    dt_end = dt.datetime(2010, 12, 31)
+    dt_end = dt.datetime(2010, 5, 12)
     dt_timeofday = dt.timedelta(hours=16)
-    ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt_timeofday)
+    ldt_timestamps = du.getNYSEdays(dt_start, dt_end + dt.timedelta(days=1), dt_timeofday)
     c_dataobj = da.DataAccess('Yahoo')
     ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
     ldf_data = c_dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
