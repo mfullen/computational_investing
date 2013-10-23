@@ -47,8 +47,8 @@ class Hw6App(object):
                 f_marketprice_today = ts_market.ix[ldt_timestamps[i]]
                 f_marketprice_yest = ts_market.ix[ldt_timestamps[i - 1]]
                 f_cutoff = -2.0
-                market_cutoff = 1.0
-                if f_symprice_today <= f_cutoff and f_symprice_yest >= f_cutoff and f_marketprice_today >= market_cutoff:
+                market_cutoff = 1.1
+                if f_symprice_today < f_cutoff and f_symprice_yest >= f_cutoff and f_marketprice_today >= market_cutoff:
                     df_events[s_sym].ix[ldt_timestamps[i]] = 1
     
         return df_events
@@ -73,6 +73,6 @@ if __name__ == '__main__':
     df_events = app6.find_events(ls_symbols, bollinger_val)
         
     print "Creating Study"
-    ep.eventprofiler(df_events, prices, i_lookback=20, i_lookforward=20, s_filename='Hw6testExample1EventStudy.pdf', b_market_neutral=True, b_errorbars=True, s_market_sym='SPY')
+    ep.eventprofiler(df_events, prices, i_lookback=20, i_lookforward=20, s_filename='Hw6Quiz1EventStudy.pdf', b_market_neutral=True, b_errorbars=True, s_market_sym='SPY')
     ''' expectedEvents = 278  '''
     
