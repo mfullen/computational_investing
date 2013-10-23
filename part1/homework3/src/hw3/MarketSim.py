@@ -62,7 +62,10 @@ class MarketSim(object):
         d_data = dict(zip(ls_keys, ldf_data))
         
         adjusted_closing_price = d_data['close']
-
+        adjusted_closing_price = adjusted_closing_price.fillna(method='ffill')
+        adjusted_closing_price = adjusted_closing_price.fillna(method='bfill')
+        adjusted_closing_price = adjusted_closing_price.fillna(1.0)
+        
         return adjusted_closing_price
     
     def calculate_cash(self,price_matrix, start_money, filename):
