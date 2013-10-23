@@ -4,17 +4,15 @@ Created on Oct 22, 2013
 @author: mfullen
 '''
 
-import pandas as pd
-import numpy as np
-import math
 import copy
-import QSTK.qstkutil.qsdateutil as du
-import datetime as dt
-import QSTK.qstkutil.DataAccess as da
-import QSTK.qstkutil.tsutil as tsu
-import csv
+
 import QSTK.qstkstudy.EventProfiler as ep
+import QSTK.qstkutil.DataAccess as da
+import QSTK.qstkutil.qsdateutil as du
+import QSTK.qstkutil.tsutil as tsu
+import datetime as dt
 from hw5.Main import Hw5App
+import numpy as np
 
 
 
