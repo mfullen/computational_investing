@@ -15,26 +15,43 @@ import QSTK.qstkstudy.EventProfiler as ep
 import matplotlib.pyplot as plt
 
 
+class Hw5App(object):
+    
+    def __init__(self):
+          '''
+        Constructor
+        '''
+    def create_bollinger_matrix(self,prices, lookback ):
+        rolling_mean = pd.rolling_mean(prices,lookback)
+        rolling_std = pd.rolling_std(prices,lookback)
+        bollinger_val = (prices - rolling_mean)/rolling_std
+        
+        return bollinger_val
+    
+    def get_close_data(self, ls_symbols,ldt_timestamps ):
+        c_dataobj = da.DataAccess('Yahoo')
+        ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
+        ldf_data = c_dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
+        d_data = dict(zip(ls_keys, ldf_data))
+        
+        for s_key in ls_keys:
+            d_data[s_key] = d_data[s_key].fillna(method='ffill')
+            d_data[s_key] = d_data[s_key].fillna(method='bfill')
+            d_data[s_key] = d_data[s_key].fillna(1.0)
+        prices = d_data['close']
+        
+        return prices
+
 if __name__ == '__main__':
-    print "Hello World"
     ls_symbols = ['AAPL','GOOG','IBM','MSFT']
     dt_start = dt.datetime(2010,1,1 )
     dt_end = dt.datetime(2010, 6, 15)
     dt_timeofday = dt.timedelta(hours=16)
+    dt_timeofday = dt.timedelta(hours=16)
     ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt_timeofday)
-    c_dataobj = da.DataAccess('Yahoo')
-    ls_keys = ['open', 'high', 'low', 'close', 'volume', 'actual_close']
-    ldf_data = c_dataobj.get_data(ldt_timestamps, ls_symbols, ls_keys)
-    d_data = dict(zip(ls_keys, ldf_data))
-    for s_key in ls_keys:
-        d_data[s_key] = d_data[s_key].fillna(method='ffill')
-        d_data[s_key] = d_data[s_key].fillna(method='bfill')
-        d_data[s_key] = d_data[s_key].fillna(1.0)
-    prices = d_data['close']
-   
-    rolling_mean = pd.rolling_mean(prices,20)
-    rolling_std = pd.rolling_std(prices,20)
-    bollinger_val = (prices - rolling_mean)/rolling_std
+    app = Hw5App()
+    prices = app.get_close_data(ls_symbols, ldt_timestamps)
+    bollinger_val = app.create_bollinger_matrix(prices, 20)
     
     print bollinger_val.values
     
