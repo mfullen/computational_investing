@@ -46,8 +46,8 @@ class Hw7App(object):
                     f_marketprice_today = ts_market.ix[ldt_timestamps[i]]
                     f_marketprice_yest = ts_market.ix[ldt_timestamps[i - 1]]
                     f_cutoff = -2.0
-                    market_cutoff = 1.0
-                    if f_symprice_today <= f_cutoff and f_symprice_yest >= f_cutoff and f_marketprice_today >= market_cutoff:
+                    market_cutoff = 1.4
+                    if f_symprice_today < f_cutoff and f_symprice_yest >= f_cutoff and f_marketprice_today >= market_cutoff:
                         df_events[s_sym].ix[ldt_timestamps[i]] = 1
                         buy_date = ldt_timestamps[i]
                         event_sym = s_sym
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     bollinger_val = app5.create_bollinger_matrix(close_price, 20)
 
     app7 = Hw7App()
-    #df_events = app7.find_events(ls_symbols, bollinger_val)
+    df_events = app7.find_events(ls_symbols, bollinger_val)
 
     orders_file = "event_orders.csv"
     sim = MarketSim()
