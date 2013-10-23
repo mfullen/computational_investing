@@ -38,8 +38,7 @@ class Hw5App(object):
             d_data[s_key] = d_data[s_key].fillna(method='ffill')
             d_data[s_key] = d_data[s_key].fillna(method='bfill')
             d_data[s_key] = d_data[s_key].fillna(1.0)
-        prices = d_data['close']
-        
+        prices = d_data
         return prices
 
 if __name__ == '__main__':
@@ -47,11 +46,11 @@ if __name__ == '__main__':
     dt_start = dt.datetime(2010,1,1 )
     dt_end = dt.datetime(2010, 6, 15)
     dt_timeofday = dt.timedelta(hours=16)
-    dt_timeofday = dt.timedelta(hours=16)
     ldt_timestamps = du.getNYSEdays(dt_start, dt_end, dt_timeofday)
-    app = Hw5App()
-    prices = app.get_close_data(ls_symbols, ldt_timestamps)
-    bollinger_val = app.create_bollinger_matrix(prices, 20)
+    app5 = Hw5App()
+    prices = app5.get_close_data(ls_symbols, ldt_timestamps)
+    prices = prices['close']
+    bollinger_val = app5.create_bollinger_matrix(prices, 20)
     
     print bollinger_val.values
     
