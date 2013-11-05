@@ -83,65 +83,96 @@ public class FundMetricService implements MetricsService
         return sharpeRatio;
     }
 
+    void printMatrix(double[][] matrix, String name)
+    {
+        System.out.println("===========================" + name + "=======================");
+        for (int i = 0; i < matrix.length; i++)
+        {
+            for (int j = 0; j < matrix[i].length; j++)
+            {
+                System.out.print(matrix[i][j] + "\t\t");
+            }
+            System.out.print("\n");
+        }
+    }
+
+    void printMatrix(double[] matrix, String name)
+    {
+        System.out.println("===========================" + name + "=======================");
+        for (int i = 0; i < matrix.length; i++)
+        {
+            System.out.print(matrix[i] + "\t\t");
+        }
+        System.out.print("\n");
+    }
+
     public FundMetrics calculateMetrics(String[] symbols, Date start, Date end)
     {
+        //TODO Missing allocations. Normalized matrix will need to be multiplied by the allocation matrix
+        /**
+         * #allocated matrix [252, 4] allocated_matrix =
+         * normalized_closing_price.copy() for col in range(0,
+         * len(allocations)): for row in range(0, len(allocated_matrix)):
+         * allocated_matrix[row][col] = allocated_matrix[row][col] *
+         * allocations[col]
+         */
         Map<String, Collection<Price>> bySymbolsDateRange = this.priceRepository.getBySymbolsDateRange(symbols, start, end);
 
         long startTime = System.nanoTime();
-        
-        Map<String, double[]> adjustedClose = new HashMap<String, double[]>();
 
+        double[][] adjustedCloseMatrix = new double[bySymbolsDateRange.keySet().size()][];
+
+        int counter = 0;
         for (Map.Entry<String, Collection<Price>> entry : bySymbolsDateRange.entrySet())
         {
             double[] ac = new double[entry.getValue().size()];
 
-            int i = 0;
+            int index = 0;
             for (Price price : entry.getValue())
             {
-                ac[i++] = price.getAdjustedClose();
+                ac[index++] = price.getAdjustedClose();
             }
-            adjustedClose.put(entry.getKey(), ac);
+            adjustedCloseMatrix[counter++] = ac;
         }
 
-        Map<String, double[]> normalizeMap = new HashMap<String, double[]>();
 
-        for (Map.Entry<String, double[]> entry : adjustedClose.entrySet())
+        //printMatrix(adjustedCloseMatrix, "Adjusted Close");
+
+        double[][] normalizedMatrix = new double[adjustedCloseMatrix.length][adjustedCloseMatrix[0].length];
+
+        for (int i = 0; i < normalizedMatrix.length; i++)
         {
-            double[] ac = new double[entry.getValue().length];
-
-            for (int j = 0; j < ac.length; j++)
+            double[] cols = adjustedCloseMatrix[i];
+            for (int j = 0; j < cols.length; j++)
             {
-                ac[j] = entry.getValue()[j] / entry.getValue()[0];
+                normalizedMatrix[i][j] = cols[j] / cols[0];
             }
-
-            normalizeMap.put(entry.getKey(), ac);
         }
 
-        double[][] normalizedMatrix = new double[normalizeMap.keySet().size()][];
-
-        int i = 0;
-        for (Map.Entry<String, double[]> entry : normalizeMap.entrySet())
-        {
-            normalizedMatrix[i++] = entry.getValue();
-        }
+        //printMatrix(normalizedMatrix, "Normalized");
 
         RealMatrix matrix = MatrixUtils.createRealMatrix(normalizedMatrix);
         Sum sum = new Sum();
         int rowDimension = matrix.getRowDimension();
         int colDimension = matrix.getColumnDimension();
 
+        //System.out.println("Row Dimension: " + rowDimension);
+        //System.out.println("Col Dimension: " + colDimension);
+
         double[] cumulativeArray = new double[colDimension];
 
-        for (int j = 0; j < colDimension; j++)
+        for (int i = 0; i < colDimension; i++)
         {
-            cumulativeArray[j] = sum.evaluate(matrix.getColumn(j));
+            cumulativeArray[i] = sum.evaluate(matrix.getColumn(i));
         }
+
+        //printMatrix(cumulativeArray, "Cumulative");
 
         double[] dailyReturnMatrix = new double[cumulativeArray.length];
 
-        for (int j = 1; j < dailyReturnMatrix.length; j++)
+        for (int i = 1; i < dailyReturnMatrix.length; i++)
         {
-            dailyReturnMatrix[j - 1] = (cumulativeArray[j] / cumulativeArray[j - 1]) - 1.0;
+            dailyReturnMatrix[i - 1] = (cumulativeArray[i] / cumulativeArray[i - 1]) - 1.0;
         }
 
         SummaryStatistics stats = new SummaryStatistics();

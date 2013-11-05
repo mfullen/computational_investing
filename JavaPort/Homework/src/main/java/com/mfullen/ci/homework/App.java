@@ -23,10 +23,10 @@ public class App
         MetricsService metricsService = injector.getInstance(MetricsService.class);
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
-        gregorianCalendar.set(2008, Calendar.JANUARY, 1);
+        gregorianCalendar.set(2011, Calendar.JANUARY, 1);
         Date start = gregorianCalendar.getTime();
 
-        gregorianCalendar.set(2009, Calendar.DECEMBER, 30);
+        gregorianCalendar.set(2011, Calendar.DECEMBER, 30);
         Date end = gregorianCalendar.getTime();
 
         double calculateFundSharpeRatio = metricsService.calculateFundSharpeRatio("GOOG", start, end);
@@ -34,7 +34,7 @@ public class App
 
         FundMetrics calculateMetrics = metricsService.calculateMetrics(new String[]
         {
-            "GOOG"
+            "AAPL", "GLD", "GOOG", "XOM"
         }, start, end);
         System.out.println("calculateMetrics: " + calculateMetrics);
     }
